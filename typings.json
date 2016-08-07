@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "react-router": "registry:npm/react-router#2.4.0+20160803174347"
+  }
+}
