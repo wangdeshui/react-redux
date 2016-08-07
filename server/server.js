@@ -16,7 +16,8 @@ app.use(webpackDevMiddleware(compiler, {noInfo: true, publicPath: config.output.
 app.use(webpackHotMiddleware(compiler));
 
 app.use(express.static('./dist'));
-
+app.use(express.static('./assets'));
+// app.use(express.static('./bower_components'));
 app.use('/', function (req, res) {
     res.sendFile(path.resolve('client/index.html'));
 });
