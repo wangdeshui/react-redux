@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
 import classNames from 'classNames'
+import Searchbar from './Searchbar'
+import AddTodoModal from './AddTodoModal'
 
 class Todos extends Component {
 
@@ -18,27 +20,50 @@ class Todos extends Component {
                     isCompleted: false
                 }]
         }
-
+        this.state.resultTodos = Object.assign([], this.state.todos)
     }
 
     changeCompletedStatus(selectedTodo) {
-        let {todos} = this.state
-        todos.forEach(todo => {
-            if (todo.id == selectedTodo.id) {
-                todo.isCompleted = !todo.isCompleted
-            }
+        selectedTodo.isCompleted = !selectedTodo.isCompleted
+        _.find(this.state.todos, todo => todo.id === selectedTodo.id).isCompleted = selectedTodo.isCompleted
+        this.setState({
+            todos: this.state.todos,
+            resultTodos: this.state.resultTodos
         })
-
-
-        this.setState({ todos: todos })
     }
 
     removeTodo(selectedTodo) {
+        _.remove(this.state.resultTodos, todo => {
+            return todo.id === selectedTodo.id
+        })
         _.remove(this.state.todos, todo => {
             return todo.id === selectedTodo.id
         })
+
         this.setState({
-            todos: this.state.todos
+            todos: this.state.todos,
+            resultTodos: this.state.resultTodos
+        })
+    }
+
+    searchTodo(keyword, status) {
+        keyword = keyword.toLowerCase()
+        let newTodos = _.filter(this.state.todos, todo => {
+
+            if (todo.name.toLowerCase().indexOf(keyword) === -1) return false
+
+            switch (status) {
+                case 'All': return true
+                case 'Completed': return todo.isCompleted
+                case 'UnCompleted': return !todo.isCompleted
+
+                default:
+                    return true
+            }
+        })
+        this.setState({
+            todos: this.state.todos,
+            resultTodos: newTodos
         })
     }
 
@@ -65,17 +90,47 @@ class Todos extends Component {
         )
     }
 
+    saveNewTodo(name) {
+        let newTodo = {
+            id: _.maxBy(this.state.todos, 'id').id + 1,
+            name,
+            isCompleted: false
+        }
+
+        this.state.todos.push(newTodo)
+        this.state.resultTodos.push(newTodo)
+        
+        this.setState({
+            todos: this.state.todos,
+            resultTodos: this.state.resultTodos
+        })
+    }
+
     render() {
         return (
-            <table className="table">
-                <tbody>
-                    <tr>
-                        <th>Name</th>
-                        <th>Actions</th>
-                    </tr>
-                    {this.state.todos.map(todo => this.renderTodo(todo)) }
-                </tbody>
-            </table>
+            <div>
+                <div className='row'>
+                    <div className='col-sm-10'>
+                        <Searchbar searchTodo={this.searchTodo.bind(this) }/>
+                    </div>
+                    <div className='col-sm-2'>
+                        <button className='btn btn-primary' data-toggle="modal" data-target="#addTodoModal">
+                            Add
+                        </button>
+                    </div>
+                </div>
+                <table className="table">
+                    <tbody>
+                        <tr>
+                            <th>Name</th>
+                            <th>Actions</th>
+                        </tr>
+                        {this.state.resultTodos.map(todo => this.renderTodo(todo)) }
+                    </tbody>
+                </table>
+
+                <AddTodoModal saveNewTodo={this.saveNewTodo.bind(this) }/>
+            </div>
         )
     }
 
