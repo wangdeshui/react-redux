@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
+import classNames from 'classNames'
 
 class Todos extends Component {
 
@@ -42,9 +43,13 @@ class Todos extends Component {
     }
 
     renderTodo(todo) {
+        let todoClassName = classNames({ 'todo-completed': todo.isCompleted })
+
         return (
             <tr key={todo.id}>
-                <td>{todo.name}</td>
+                <td>
+                    <span className={todoClassName}>{todo.name}</span>
+                </td>
                 <td>
                     <button type="button" className="btn btn-primary"
                         style={{ marginRight: '10px' }}
