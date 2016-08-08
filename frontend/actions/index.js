@@ -1,5 +1,6 @@
 import createAction from './createAction'
 import fetch from 'isomorphic-fetch'
+import api from '../common/api'
 
 export const requestTodos = createAction('Request_Todos')
 export const receiveTodos = createAction('Receive_Todos', todos => {
@@ -18,11 +19,7 @@ export const changeTodoCompletedStatus = createAction('Change_Todo_Completed_Sta
 export function fetchTodos() {
   return dispatch => {
     dispatch(requestTodos())
-    return fetch('http://localhost:8037/')
-      .then(response => response.json())
+    return api.get('todos')
       .then(todos => dispatch(receiveTodos(todos)))
-      .catch(ex => {
-        console.log('error', ex)
-      })
   }
 }
