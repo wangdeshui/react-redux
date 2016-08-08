@@ -5,6 +5,10 @@ export default class AddTodoModal extends React.Component {
         super(props)
     }
 
+    show() {
+        $(this.refs.modal).modal('show')
+    }
+
     render() {
         let {saveNewTodo} = this.props
 

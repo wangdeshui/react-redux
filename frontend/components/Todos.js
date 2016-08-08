@@ -99,7 +99,7 @@ class Todos extends Component {
 
         this.state.todos.push(newTodo)
         this.state.resultTodos.push(newTodo)
-        
+
         this.setState({
             todos: this.state.todos,
             resultTodos: this.state.resultTodos
@@ -114,7 +114,7 @@ class Todos extends Component {
                         <Searchbar searchTodo={this.searchTodo.bind(this) }/>
                     </div>
                     <div className='col-sm-2'>
-                        <button className='btn btn-primary' data-toggle="modal" data-target="#addTodoModal">
+                        <button className='btn btn-primary' onClick={() => this.refs.addTodoModal.show()}>
                             Add
                         </button>
                     </div>
@@ -129,7 +129,7 @@ class Todos extends Component {
                     </tbody>
                 </table>
 
-                <AddTodoModal saveNewTodo={this.saveNewTodo.bind(this) }/>
+                <AddTodoModal saveNewTodo={this.saveNewTodo.bind(this) } ref='addTodoModal'/>
             </div>
         )
     }
