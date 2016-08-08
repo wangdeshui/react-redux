@@ -3,47 +3,49 @@ import _ from 'lodash'
 import classNames from 'classNames'
 import Searchbar from './Searchbar'
 import AddTodoModal from './AddTodoModal'
+import api from '../common/api'
 
 class Todos extends Component {
 
     constructor(props) {
         super(props)
-        this.state = {
-            todos: [
-                {
-                    id: 1,
-                    name: 'Todo React',
-                    isCompleted: false
-                }, {
-                    id: 2,
-                    name: 'Todo Redux',
-                    isCompleted: false
-                }]
-        }
-        this.state.resultTodos = Object.assign([], this.state.todos)
+    }
+
+    componentDidMount() {
+        api.get('todos').then(todos => {
+            var state = {
+                todos: todos,
+                resultTodos: Object.assign([], todos)
+            }
+            this.setState(state)
+        })
     }
 
     changeCompletedStatus(selectedTodo) {
-        selectedTodo.isCompleted = !selectedTodo.isCompleted
-        _.find(this.state.todos, todo => todo.id === selectedTodo.id).isCompleted = selectedTodo.isCompleted
-        this.setState({
-            todos: this.state.todos,
-            resultTodos: this.state.resultTodos
+        var updatedTodo = Object.assign({}, selectedTodo, { isCompleted: !selectedTodo.isCompleted })
+        api.put('todos', updatedTodo).then(() => {
+            selectedTodo.isCompleted = !selectedTodo.isCompleted
+            this.setState({
+                todos: this.state.todos,
+                resultTodos: this.state.resultTodos
+            })
         })
     }
 
     removeTodo(selectedTodo) {
-        _.remove(this.state.resultTodos, todo => {
-            return todo.id === selectedTodo.id
-        })
-        _.remove(this.state.todos, todo => {
-            return todo.id === selectedTodo.id
-        })
-
-        this.setState({
-            todos: this.state.todos,
-            resultTodos: this.state.resultTodos
-        })
+        api.delete('todos', { params: { id: selectedTodo.id } })
+            .then(() => {
+                _.remove(this.state.resultTodos, todo => {
+                    return todo.id === selectedTodo.id
+                })
+                _.remove(this.state.todos, todo => {
+                    return todo.id === selectedTodo.id
+                })
+                this.setState({
+                    todos: this.state.todos,
+                    resultTodos: this.state.resultTodos
+                })
+            })
     }
 
     searchTodo(keyword, status) {
@@ -91,18 +93,20 @@ class Todos extends Component {
     }
 
     saveNewTodo(name) {
+        let maxTodo = _.maxBy(this.state.todos, 'id')
         let newTodo = {
-            id: _.maxBy(this.state.todos, 'id').id + 1,
+            id: maxTodo ? maxTodo.id + 1 : 1,
             name,
             isCompleted: false
         }
 
-        this.state.todos.push(newTodo)
-        this.state.resultTodos.push(newTodo)
-
-        this.setState({
-            todos: this.state.todos,
-            resultTodos: this.state.resultTodos
+        api.post('todos', newTodo).then(() => {
+            this.state.todos.push(newTodo)
+            this.state.resultTodos.push(newTodo)
+            this.setState({
+                todos: this.state.todos,
+                resultTodos: this.state.resultTodos
+            })
         })
     }
 
@@ -114,7 +118,7 @@ class Todos extends Component {
                         <Searchbar searchTodo={this.searchTodo.bind(this) }/>
                     </div>
                     <div className='col-sm-2'>
-                        <button className='btn btn-primary' onClick={() => this.refs.addTodoModal.show()}>
+                        <button className='btn btn-primary' onClick={() => this.refs.addTodoModal.show() }>
                             Add
                         </button>
                     </div>
@@ -125,7 +129,7 @@ class Todos extends Component {
                             <th>Name</th>
                             <th>Actions</th>
                         </tr>
-                        {this.state.resultTodos.map(todo => this.renderTodo(todo)) }
+                        {this.state ? this.state.resultTodos.map(todo => this.renderTodo(todo)) : null }
                     </tbody>
                 </table>
 

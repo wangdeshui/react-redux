@@ -7,6 +7,7 @@ export default class AddTodoModal extends React.Component {
 
     show() {
         $(this.refs.modal).modal('show')
+        setTimeout(() => this.refs.newTodoName.focus(), 500);
     }
 
     render() {
