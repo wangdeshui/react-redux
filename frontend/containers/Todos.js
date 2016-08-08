@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import _ from 'lodash'
 import classNames from 'classNames'
-import Searchbar from './Searchbar'
-import AddTodoModal from './AddTodoModal'
+import Searchbar from '../components/Searchbar'
+import AddTodoModal from '../components/AddTodoModal'
 import api from '../common/api'
+import TodoLists from '../components/TodoLists'
 
 class Todos extends Component {
 
@@ -22,7 +23,7 @@ class Todos extends Component {
     }
 
     changeCompletedStatus(selectedTodo) {
-        var updatedTodo = Object.assign({}, selectedTodo, { isCompleted: !selectedTodo.isCompleted })
+        var updatedTodo = Object.assign({}, selectedTodo, {isCompleted: !selectedTodo.isCompleted})
         api.put('todos', updatedTodo).then(() => {
             selectedTodo.isCompleted = !selectedTodo.isCompleted
             this.setState({
@@ -33,7 +34,7 @@ class Todos extends Component {
     }
 
     removeTodo(selectedTodo) {
-        api.delete('todos', { params: { id: selectedTodo.id } })
+        api.delete('todos', {params: {id: selectedTodo.id}})
             .then(() => {
                 _.remove(this.state.resultTodos, todo => {
                     return todo.id === selectedTodo.id
@@ -55,9 +56,12 @@ class Todos extends Component {
             if (todo.name.toLowerCase().indexOf(keyword) === -1) return false
 
             switch (status) {
-                case 'All': return true
-                case 'Completed': return todo.isCompleted
-                case 'UnCompleted': return !todo.isCompleted
+                case 'All':
+                    return true
+                case 'Completed':
+                    return todo.isCompleted
+                case 'UnCompleted':
+                    return !todo.isCompleted
 
                 default:
                     return true
@@ -69,28 +73,6 @@ class Todos extends Component {
         })
     }
 
-    renderTodo(todo) {
-        let todoClassName = classNames({ 'todo-completed': todo.isCompleted })
-
-        return (
-            <tr key={todo.id}>
-                <td>
-                    <span className={todoClassName}>{todo.name}</span>
-                </td>
-                <td>
-                    <button type="button" className="btn btn-primary"
-                        style={{ marginRight: '10px' }}
-                        onClick={() => this.changeCompletedStatus(todo) }>
-                        {todo.isCompleted ? 'UnComplete' : 'Completed'}
-                    </button>
-                    <button type="button" className="btn btn-danger"
-                        onClick={() => this.removeTodo(todo) }>
-                        Remove
-                    </button>
-                </td>
-            </tr>
-        )
-    }
 
     saveNewTodo(name) {
         let maxTodo = _.maxBy(this.state.todos, 'id')
@@ -111,33 +93,22 @@ class Todos extends Component {
     }
 
     render() {
-        return (
-            <div>
-                <div className='row'>
-                    <div className='col-sm-10'>
-                        <Searchbar searchTodo={this.searchTodo.bind(this) }/>
-                    </div>
-                    <div className='col-sm-2'>
-                        <button className='btn btn-primary' onClick={() => this.refs.addTodoModal.show() }>
-                            Add
-                        </button>
-                    </div>
-                </div>
-                <table className="table">
-                    <tbody>
-                        <tr>
-                            <th>Name</th>
-                            <th>Actions</th>
-                        </tr>
-                        {this.state ? this.state.resultTodos.map(todo => this.renderTodo(todo)) : null }
-                    </tbody>
-                </table>
+        if(!this.state)return <div>Loading...</div>
 
-                <AddTodoModal saveNewTodo={this.saveNewTodo.bind(this) } ref='addTodoModal'/>
-            </div>
+        let todoListsProps={
+            changeCompletedStatus: this.changeCompletedStatus.bind(this),
+            removeTodo: this.removeTodo.bind(this),
+            searchTodo:this.searchTodo.bind(this),
+            saveNewTodo:this.saveNewTodo.bind(this),
+            resultTodos:this.state.resultTodos
+        }
+
+        return (
+           <TodoLists {...todoListsProps}  />
         )
     }
-
 }
+
+
 
 export default Todos
