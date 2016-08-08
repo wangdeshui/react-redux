@@ -2,8 +2,8 @@ import React from 'react'
 import { render } from 'react-dom'
 import { Router, Route, Link, browserHistory,IndexRoute } from 'react-router'
 import Home from '../components/Home'
-import Todos from '../components/Todos'
-import App from '../components/App'
+import Todos from '../containers/Todos'
+import App from '../containers/App'
 
 render(
 

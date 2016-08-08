@@ -5,7 +5,8 @@
   "main": "./src/server.js",
   "scripts": {
     "dev": "babel --watch --source-maps --out-dir dist --presets es2015 src",
-    "build": "babel src --out-dir dist"
+    "build": "babel src --out-dir dist",
+    "serve": "nodemon src/server.js --ignore components"
   },
   "author": "",
   "license": "ISC",
