@@ -6,8 +6,10 @@ export default class Searchbar extends React.Component {
     }
 
     render() {
-        let {searchTodo, onFilterChange} = this.props
-
+        let {searchTodos, onFilterChange} = this.props
+        let search = (keyword, status) => {
+            searchTodos({ keyword, status })
+        }
         return (
             <div className='row'>
                 <div className='col-sm-7'>
@@ -15,7 +17,7 @@ export default class Searchbar extends React.Component {
                 </div>
 
                 <div className='col-sm-3'>
-                    <select className='form-control' onChange={() => searchTodo(this.refs.searchKeyword.value, this.refs.searchStatus.value)} ref='searchStatus'>
+                    <select className='form-control' onChange={() => search(this.refs.searchKeyword.value, this.refs.searchStatus.value) } ref='searchStatus'>
                         <option value='All'>All</option>
                         <option value='Completed'>Completed</option>
                         <option value='UnCompleted'>UnCompleted</option>
@@ -24,7 +26,7 @@ export default class Searchbar extends React.Component {
 
                 <div className='col-sm-2'>
                     <button className='btn btn-primary'
-                        onClick={() => searchTodo(this.refs.searchKeyword.value, this.refs.searchStatus.value)}>
+                        onClick={() => search(this.refs.searchKeyword.value, this.refs.searchStatus.value) }>
                         Search
                     </button>
                 </div>

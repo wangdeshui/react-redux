@@ -5,5 +5,9 @@ import thunkMiddleware from 'redux-thunk'
 export default function configureStore() {
     const store = createStore(rootReducer, applyMiddleware(thunkMiddleware))
 
+    store.subscribe(() => {
+        console.log(store.getState())
+    })
+
     return store
 }

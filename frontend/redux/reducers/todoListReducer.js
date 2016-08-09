@@ -1,35 +1,69 @@
 import _ from 'lodash'
 import {fetchTodo, requestTodos, receiveTodos,
-     todoAdded, todoRemoved, searchTodo, showAddTodoModal, hideAddTodoModal} from '../actions'
+    addTodoBegan, addTodoEnd, removeTodoBegan, removeTodoEnd,
+    searchTodos, showAddTodoModal, hideAddTodoModal,
+    changeTodoStatusBegan,
+    changeTodoStatusEnd} from '../actions'
 
-let todoList = (state = {isLoading: true}, action) => {
+let todo = (todo, action) => {
+    switch (action.type) {
+        case removeTodoBegan.type:
+            if (todo.id !== action.id) return todo
+            return Object.assign({}, todo, { isRemoving: true })
+        case changeTodoStatusBegan.type:
+            if (todo.id !== action.todo.id) return todo
+            return Object.assign({}, todo, { isChangingStatus: true })
+        case changeTodoStatusEnd.type:
+            if (todo.id !== action.todo.id) return todo
+            return Object.assign({}, todo, {
+                isChangingStatus: false,
+                isCompleted: !action.todo.isCompleted
+            })
+        default:
+            break;
+    }
+}
+
+let todoList = (state = { isLoading: true }, action) => {
     switch (action.type) {
         case requestTodos.type:
             return Object.assign({}, state, { isLoading: true })
-            
+
         case receiveTodos.type:
             return Object.assign({}, state, {
-                todos: action.todos,
+                items: action.todos,
                 resultTodos: Object.assign([], action.todos),
                 isLoading: false
             })
 
-        case todoAdded.type:
+        case addTodoBegan.type:
             return Object.assign({}, state, {
-                todos: [...state.todos, action.todo],
-                resultTodos: [...state.resultTodos, action.todo]
+                isAddingTodo: true
             })
-        case todoRemoved.type:
+        case addTodoEnd.type:
             return Object.assign({}, state, {
-                todos: state.todos.filter(todo => todo.id !== action.id),
+                isAddingTodo: false,
+                isShowingAddTodoModal: false,
+                items: [...state.items, action.newTodo],
+                resultTodos: [...state.resultTodos, action.newTodo]
+            })
+
+        case removeTodoBegan.type:
+            return Object.assign({}, state, {
+                items: state.items.map(t => todo(t, action)),
+                resultTodos: state.resultTodos.map(t => todo(t, action))
+            })
+        case removeTodoEnd.type:
+            return Object.assign({}, state, {
+                items: state.items.filter(todo => todo.id !== action.id),
                 resultTodos: state.resultTodos.filter(todo => todo.id !== action.id)
             })
 
-        case searchTodo.type:
-            let resultTodos = _.filter(state.todos, todo => {
-                if (todo.name.toLowerCase().indexOf(keyword) === -1) return false
+        case searchTodos.type:
+            let resultTodos = _.filter(state.items, todo => {
+                if (todo.name.toLowerCase().indexOf(action.filter.keyword) === -1) return false
 
-                switch (status) {
+                switch (action.filter.status) {
                     case 'All': return true
                     case 'Completed': return todo.isCompleted
                     case 'UnCompleted': return !todo.isCompleted
@@ -44,6 +78,20 @@ let todoList = (state = {isLoading: true}, action) => {
             return Object.assign({}, state, { isShowingAddTodoModal: true })
         case hideAddTodoModal.type:
             return Object.assign({}, state, { isShowingAddTodoModal: false })
+
+        case changeTodoStatusBegan.type:
+            return Object.assign({}, state, {
+                items: state.items.map(t => todo(t, action)),
+                resultTodos: state.resultTodos.map(t => todo(t, action))
+            })
+
+        case changeTodoStatusEnd.type:
+            return Object.assign({}, state, {
+                items: state.items.map(t => todo(t, action)),
+                resultTodos: state.resultTodos.map(t => todo(t, action))
+            })
+
+
         default:
             return state
     }

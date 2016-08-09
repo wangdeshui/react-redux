@@ -1,22 +1,60 @@
 import React from 'react'
+import classNames from 'classNames'
 
 export default class AddTodoModal extends React.Component {
     constructor(props) {
         super(props)
     }
 
+    componentDidMount() {
+        this.bindEvent()
+    }
+
+    get isOpened() {
+        return ($(this.refs.modal).data('bs.modal') || {}).isShown
+    }
+
     show() {
-        $(this.refs.modal).modal('show')
-        setTimeout(() => this.refs.newTodoName.focus(), 500);
+        if (!this.isOpened) {
+            $(this.refs.modal).modal('show')
+            setTimeout(() => this.refs.newTodoName.focus(), 500);
+        }
+    }
+
+    hide() {
+        if (this.isOpened) {
+            $(this.refs.modal).modal('hide')
+            $(this.refs.newTodoName).val("")
+        }
+    }
+
+    bindEvent() {
+        if (this.refs.modal) {
+            $(this.refs.modal).on("hidden.bs.modal", this.props.hideAddTodoModal)
+        }
     }
 
     render() {
-        let {saveNewTodo} = this.props
+        let {addTodo, isShowing, hideAddTodoModal, isAddingTodo, todos} = this.props
+
+        let saveButtonClassNames = classNames({
+            'btn btn-primary': true,
+            'disabled': isAddingTodo
+        })
+
+        if (isShowing) {
+            this.show()
+        } else {
+            this.hide()
+        }
 
         let save = () => {
-            saveNewTodo(this.refs.newTodoName.value)
-            $(this.refs.newTodoName).val("")
-            $(this.refs.modal).modal('hide')
+            let id = todos.length > 0 ? _.maxBy(todos, todo => todo.id).id + 1 : 1
+            addTodo({
+                id: id,
+                name: this.refs.newTodoName.value,
+                isCompleted: false
+            })
         }
 
         return (
@@ -31,10 +69,13 @@ export default class AddTodoModal extends React.Component {
                             <input className='form-control' ref='newTodoName'/>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary"
+                            <button type="button" className="btn btn-default" onClick={hideAddTodoModal}>Close</button>
+                            <button type="button" className={saveButtonClassNames}
                                 onClick={save}>
-                                Save
+                                {
+                                    isAddingTodo ? <span>Saving</span> :
+                                        <span>Save</span>
+                                }
                             </button>
                         </div>
                     </div>
