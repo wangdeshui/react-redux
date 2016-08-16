@@ -1,12 +1,11 @@
 {
-  "name": "scrumpoker",
+  "name": "react-redux-back-end",
   "version": "1.0.0",
   "description": "",
   "main": "./src/server.js",
   "scripts": {
-    "dev": "babel --watch --source-maps --out-dir dist --presets es2015 src",
-    "build": "babel src --out-dir dist",
-    "serve": "nodemon src/server.js --ignore components"
+    "serve": "nodemon src/server.js --ignore components",
+    "start": "pm2 start src/server.js"
   },
   "author": "",
   "license": "ISC",

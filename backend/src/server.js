@@ -22,3 +22,12 @@ router.config(appServer);
 appServer.listen(config.port, function () {
     console.log('Server is running!');
 });
+
+
+var exec = require('child_process').exec;
+var path = require('path')
+
+var parentDir = path.resolve(process.cwd());
+exec('mongod --dbpath mongo-db', { cwd: parentDir }, function (error, stdout, stderr) {
+    if (error) console.log(error)
+});
